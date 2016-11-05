@@ -8,9 +8,9 @@
 
 import UIKit
 
-class Token: UIView {
+public class Token: UIView {
 
-    var title: String? {
+    public internal(set) var title: String? {
         didSet {
             titleView.text = title
             titleView.textColor = colorScheme
@@ -24,9 +24,9 @@ class Token: UIView {
             titleView.sizeToFit()
         }
     }
-    var highlighted: Bool = false { didSet { updateUI() } }
-    var colorScheme: UIColor! { didSet { updateUI() } }
-    var didTapTokenBlock: (Token)->Void = {_ in}
+    internal var highlighted: Bool = false { didSet { updateUI() } }
+    internal var colorScheme: UIColor! { didSet { updateUI() } }
+    internal var didTapTokenBlock: (Token)->Void = {_ in}
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,13 +37,22 @@ class Token: UIView {
         setup()
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func didTapToken(_ sender: UITapGestureRecognizer) {
+    internal func didTapToken(_ sender: UITapGestureRecognizer) {
         didTapTokenBlock(self)
     }
+    
+    // MARK: - IBOutlet
+    
+    @IBOutlet weak var backgroundView: UIView!
+    @IBOutlet weak var titleView: UILabel!
+    
+    // MARK: - Private
+    
+    private var tapGestureRecognizer: UITapGestureRecognizer!
     
     private func updateUI() {
         let textColor = highlighted ? UIColor.white : colorScheme
@@ -59,14 +68,5 @@ class Token: UIView {
         titleView.textColor = colorScheme
         addGestureRecognizer(tapGestureRecognizer)
     }
-    
-    // MARK: - IBOutlet
-    
-    @IBOutlet weak var backgroundView: UIView!
-    @IBOutlet weak var titleView: UILabel!
-    
-    // MARK: - Private
-    
-    private var tapGestureRecognizer: UITapGestureRecognizer!
     
 }

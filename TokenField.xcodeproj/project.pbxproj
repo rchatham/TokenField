@@ -311,6 +311,7 @@
 				30FDD4681DCD321500A71652 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

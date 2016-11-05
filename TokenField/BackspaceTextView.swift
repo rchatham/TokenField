@@ -8,15 +8,15 @@
 
 import UIKit
 
-protocol BackspaceTextViewDelegate: class {
+public protocol BackspaceTextViewDelegate: class {
     func textViewDidEnterBackspace(_ textView: BackspaceTextView)
 }
 
-class BackspaceTextView: UITextView {
+public class BackspaceTextView: UITextView {
 
-    weak var backspaceDelegate: BackspaceTextViewDelegate?
+    public weak var backspaceDelegate: BackspaceTextViewDelegate?
     
-    func keyboardInputShouldDelete(_ textView: UITextView) -> Bool {
+    public func keyboardInputShouldDelete(_ textView: UITextView) -> Bool {
         if text.characters.count == 0 {
             backspaceDelegate?.textViewDidEnterBackspace(self)
         }
