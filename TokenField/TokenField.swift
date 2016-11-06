@@ -44,8 +44,8 @@ public class TokenField: UIView {
     public var tokenPadding: CGFloat = Constants.defaultTokenPadding
     public var minInputWidth: CGFloat = Constants.defaultMinInputWidth
     
-    public var inputTextViewKeyboardType: UIKeyboardType!
-    public var keyboardAppearance: UIKeyboardAppearance!
+    public var inputTextViewKeyboardType: UIKeyboardType = .default
+    public var keyboardAppearance: UIKeyboardAppearance = .default
     
     public var autocorrectionType: UITextAutocorrectionType = .no
     public var autocapitalizationType: UITextAutocapitalizationType = .sentences
@@ -90,7 +90,7 @@ public class TokenField: UIView {
         toLabel.text = self.toLabelText
         return toLabel
     }()
-    public lazy var inputTextView: BackspaceTextView! = {
+    public lazy var inputTextView: BackspaceTextView = {
         let inputTextView = BackspaceTextView()
         inputTextView.keyboardType = self.inputTextViewKeyboardType
         inputTextView.textColor = self.inputTextViewTextColor
@@ -199,6 +199,53 @@ public class TokenField: UIView {
         }
     }
     
+    internal func handleSingleTap(_ sender: UITapGestureRecognizer) {
+        _ = becomeFirstResponder()
+    }
+    
+    // MARK: - Fileprivate
+    
+    fileprivate var tokens: [Token] = []
+    
+    fileprivate func setCursorVisibility() {
+        let highlightedTokens = tokens.filter { $0.highlighted }
+        let visible = highlightedTokens.count == 0
+        if visible {
+            inputTextViewBecomeFirstResponder()
+        } else {
+            inputTextView.becomeFirstResponder()
+        }
+    }
+    
+    fileprivate func updateInputTextField() {
+        print("TokenField: Should set placeholder text")
+    }
+    
+    fileprivate func focusInputTextView() {
+        let contentOffest = scrollView.contentOffset
+        let targetY = inputTextView.frame.origin.y + Constants.defaultTokenHeight - maxHeight
+        if targetY > contentOffest.y {
+            scrollView.setContentOffset(CGPoint(x: contentOffest.x, y: targetY), animated: false)
+        }
+    }
+    
+    fileprivate func unhighlightAllTokens() {
+        for token in tokens {
+            token.highlighted = false
+        }
+        setCursorVisibility()
+    }
+    
+    // MARK: - Private
+    
+    private var scrollView: UIScrollView!
+    private var originalHeight: CGFloat!
+    private var tapGestureRecognizer: UITapGestureRecognizer!
+    private var invisibleTextField: BackspaceTextView!
+    private var collapsedLabel: UILabel!
+    
+    
+    
     private func layoutCollapsedLabel() {
         collapsedLabel.removeFromSuperview()
         scrollView.isHidden = true
@@ -284,11 +331,10 @@ public class TokenField: UIView {
             currentX = 0.0
         }
         
-        let inputTextView = self.inputTextView
         if clearInput {
-            inputTextView?.text = ""
+            inputTextView.text = ""
         }
-        inputTextView?.frame = CGRect(
+        inputTextView.frame = CGRect(
             x: currentX,
             y: currentY + 1,
             width: inputTextViewWidth,
@@ -366,51 +412,6 @@ public class TokenField: UIView {
             self.scrollView.addSubview(token)
         }
     }
-    
-    internal func handleSingleTap(_ sender: UITapGestureRecognizer) {
-        _ = becomeFirstResponder()
-    }
-    
-    // MARK: - Fileprivate
-    
-    fileprivate var tokens: [Token] = []
-    
-    fileprivate func setCursorVisibility() {
-        let highlightedTokens = tokens.filter { $0.highlighted }
-        let visible = highlightedTokens.count == 0
-        if visible {
-            inputTextViewBecomeFirstResponder()
-        } else {
-            inputTextView.becomeFirstResponder()
-        }
-    }
-    
-    fileprivate func updateInputTextField() {
-        print("TokenField: Should set placeholder text")
-    }
-    
-    fileprivate func focusInputTextView() {
-        let contentOffest = scrollView.contentOffset
-        let targetY = inputTextView.frame.origin.y + Constants.defaultTokenHeight - maxHeight
-        if targetY > contentOffest.y {
-            scrollView.setContentOffset(CGPoint(x: contentOffest.x, y: targetY), animated: false)
-        }
-    }
-    
-    fileprivate func unhighlightAllTokens() {
-        for token in tokens {
-            token.highlighted = false
-        }
-        setCursorVisibility()
-    }
-    
-    // MARK: - Private
-    
-    private var scrollView: UIScrollView!
-    private var originalHeight: CGFloat!
-    private var tapGestureRecognizer: UITapGestureRecognizer!
-    private var invisibleTextField: BackspaceTextView!
-    private var collapsedLabel: UILabel!
     
     private func inputTextViewBecomeFirstResponder() {
         guard !inputTextView.isFirstResponder else { return }
