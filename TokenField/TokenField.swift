@@ -150,28 +150,6 @@ public class TokenField: UIView {
         return inputTextView.resignFirstResponder()
     }
     
-    private func setup() {
-        autocorrectionType = UITextAutocorrectionType.no
-        autocapitalizationType = UITextAutocapitalizationType.sentences
-        maxHeight = Constants.defaultMaxHeight
-        verticalInset = Constants.defaultVerticalInset
-        horizontalInset = Constants.defaultHorizontalInset
-        tokenPadding = Constants.defaultTokenPadding
-        minInputWidth = Constants.defaultMinInputWidth
-        
-        colorScheme = UIColor.blue
-        toLabelTextColor = UIColor(red: 112/255.0, green: 124/255.0, blue: 124/255.0, alpha: 1.0)
-        inputTextViewTextColor = UIColor(red: 38/255.0, green: 39/255.0, blue: 41/255.0, alpha: 1.0)
-        
-        toLabelText = NSLocalizedString("To:", comment: "")
-        
-        originalHeight = frame.height
-        
-        layoutInvisibleTextView()
-        layoutScrollView()
-        reloadData()
-    }
-    
     public func collapse() {
         layoutCollapsedLabel()
     }
@@ -239,18 +217,26 @@ public class TokenField: UIView {
     // MARK: - Private
     
     private var scrollView: UIScrollView?
-    private var originalHeight: CGFloat?
+    private var originalHeight: CGFloat = 0.0
     private var tapGestureRecognizer: UITapGestureRecognizer?
     private var invisibleTextField: BackspaceTextView?
     private var collapsedLabel: UILabel?
     
     
     
+    private func setup() {
+        originalHeight = frame.height
+        
+        layoutInvisibleTextView()
+        layoutScrollView()
+        reloadData()
+    }
+    
     private func layoutCollapsedLabel() {
         collapsedLabel?.removeFromSuperview()
         scrollView?.isHidden = true
         var frame = self.frame
-        frame.size.height = originalHeight ?? CGRect.zero.height
+        frame.size.height = originalHeight
         self.frame = frame
         
         var currentX: CGFloat = 0.0
@@ -266,7 +252,9 @@ public class TokenField: UIView {
         let inputViewShouldBecomeFirstResponder = inputTextView.isFirstResponder
         scrollView?.subviews.forEach { $0.removeFromSuperview() }
         scrollView?.isHidden = false
-        removeGestureRecognizer(tapGestureRecognizer!)
+        if tapGestureRecognizer != nil {
+            removeGestureRecognizer(tapGestureRecognizer!)
+        }
         
         tokens = []
         
