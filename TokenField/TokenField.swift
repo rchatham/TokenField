@@ -38,39 +38,39 @@ public class TokenField: UIView {
         public static let defaultTokenHeight: CGFloat        = 30.0
     }
     
-    public var maxHeight: CGFloat!
-    public var verticalInset: CGFloat!
-    public var horizontalInset: CGFloat!
-    public var tokenPadding: CGFloat!
-    public var minInputWidth: CGFloat!
+    public var maxHeight: CGFloat = Constants.defaultMaxHeight
+    public var verticalInset: CGFloat = Constants.defaultVerticalInset
+    public var horizontalInset: CGFloat = Constants.defaultHorizontalInset
+    public var tokenPadding: CGFloat = Constants.defaultTokenPadding
+    public var minInputWidth: CGFloat = Constants.defaultMinInputWidth
     
     public var inputTextViewKeyboardType: UIKeyboardType!
     public var keyboardAppearance: UIKeyboardAppearance!
     
-    public var autocorrectionType: UITextAutocorrectionType!
-    public var autocapitalizationType: UITextAutocapitalizationType!
-    public var inputTextViewAccessoryView: UIView! {
+    public var autocorrectionType: UITextAutocorrectionType = .no
+    public var autocapitalizationType: UITextAutocapitalizationType = .sentences
+    public var inputTextViewAccessoryView: UIView? {
         didSet {
             inputTextView.inputAccessoryView = inputTextViewAccessoryView
         }
     }
-    public var toLabelTextColor: UIColor! {
+    public var toLabelTextColor: UIColor = UIColor(red: 112/255.0, green: 124/255.0, blue: 124/255.0, alpha: 1.0) {
         didSet {
             toLabel.textColor = toLabelTextColor
         }
     }
-    public var toLabelText: String! {
+    public var toLabelText: String = NSLocalizedString("To:", comment: "") {
         didSet {
             toLabel.text = toLabelText
             reloadData()
         }
     }
-    public var inputTextViewTextColor: UIColor! {
+    public var inputTextViewTextColor: UIColor = UIColor(red: 38/255.0, green: 39/255.0, blue: 41/255.0, alpha: 1.0) {
         didSet {
             inputTextView.textColor = inputTextViewTextColor
         }
     }
-    public var colorScheme: UIColor! {
+    public var colorScheme: UIColor = .blue {
         didSet {
             collapsedLabel.textColor = colorScheme
             inputTextView.textColor = colorScheme
@@ -442,7 +442,7 @@ public class TokenField: UIView {
         var newFrame = frame
         
         if currentY + Constants.defaultTokenHeight > frame.height {
-            if currentY + Constants.defaultTokenHeight <= maxHeight ?? 0.0 {
+            if currentY + Constants.defaultTokenHeight <= maxHeight {
                 newFrame.size.height = currentY
                     + Constants.defaultTokenHeight
                     + Constants.defaultVerticalInset * 2
