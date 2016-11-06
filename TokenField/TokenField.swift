@@ -72,7 +72,7 @@ public class TokenField: UIView {
     }
     public var colorScheme: UIColor = .blue {
         didSet {
-            collapsedLabel.textColor = colorScheme
+            collapsedLabel?.textColor = colorScheme
             inputTextView.textColor = colorScheme
             for token in tokens {
                 token.colorScheme = colorScheme
@@ -188,11 +188,11 @@ public class TokenField: UIView {
     
     override public func layoutSubviews() {
         super.layoutSubviews()
-        scrollView.contentSize = CGSize(
+        scrollView?.contentSize = CGSize(
             width: frame.width - Constants.defaultHorizontalInset * 2,
             height: frame.height - Constants.defaultVerticalInset * 2
         )
-        if collapsedLabel.superview != nil {
+        if collapsedLabel?.superview != nil {
             layoutCollapsedLabel()
         } else {
             layoutTokensAndInputWithFrameAdjustment(false)
@@ -222,10 +222,10 @@ public class TokenField: UIView {
     }
     
     fileprivate func focusInputTextView() {
-        let contentOffest = scrollView.contentOffset
+        let contentOffest = scrollView?.contentOffset ?? CGPoint.zero
         let targetY = inputTextView.frame.origin.y + Constants.defaultTokenHeight - maxHeight
         if targetY > contentOffest.y {
-            scrollView.setContentOffset(CGPoint(x: contentOffest.x, y: targetY), animated: false)
+            scrollView?.setContentOffset(CGPoint(x: contentOffest.x, y: targetY), animated: false)
         }
     }
     
@@ -238,19 +238,19 @@ public class TokenField: UIView {
     
     // MARK: - Private
     
-    private var scrollView: UIScrollView!
-    private var originalHeight: CGFloat!
-    private var tapGestureRecognizer: UITapGestureRecognizer!
-    private var invisibleTextField: BackspaceTextView!
-    private var collapsedLabel: UILabel!
+    private var scrollView: UIScrollView?
+    private var originalHeight: CGFloat?
+    private var tapGestureRecognizer: UITapGestureRecognizer?
+    private var invisibleTextField: BackspaceTextView?
+    private var collapsedLabel: UILabel?
     
     
     
     private func layoutCollapsedLabel() {
-        collapsedLabel.removeFromSuperview()
-        scrollView.isHidden = true
+        collapsedLabel?.removeFromSuperview()
+        scrollView?.isHidden = true
         var frame = self.frame
-        frame.size.height = originalHeight
+        frame.size.height = originalHeight ?? CGRect.zero.height
         self.frame = frame
         
         var currentX: CGFloat = 0.0
@@ -258,22 +258,22 @@ public class TokenField: UIView {
         layoutCollapsedLabelWith(currentX: &currentX)
         
         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(TokenField.handleSingleTap(_:)))
-        addGestureRecognizer(tapGestureRecognizer)
+        addGestureRecognizer(tapGestureRecognizer!)
     }
     
     private func layoutTokensAndInputWithFrameAdjustment(_ shouldAdjustFrame: Bool) {
-        collapsedLabel.removeFromSuperview()
+        collapsedLabel?.removeFromSuperview()
         let inputViewShouldBecomeFirstResponder = inputTextView.isFirstResponder
-        scrollView.subviews.forEach { $0.removeFromSuperview() }
-        scrollView.isHidden = false
-        removeGestureRecognizer(tapGestureRecognizer)
+        scrollView?.subviews.forEach { $0.removeFromSuperview() }
+        scrollView?.isHidden = false
+        removeGestureRecognizer(tapGestureRecognizer!)
         
         tokens = []
         
         var currentX: CGFloat = 0.0
         var currentY: CGFloat = 0.0
         
-        layoutToLabelInView(scrollView, origin: CGPoint.zero, currentX: &currentX)
+        layoutToLabelInView(scrollView!, origin: CGPoint.zero, currentX: &currentX)
         layoutTokensWith(currentX: &currentX, currentY: &currentY)
         layoutInputTextViewWith(currentX: &currentX, currentY: &currentY, clearInput: shouldAdjustFrame)
         
@@ -281,8 +281,8 @@ public class TokenField: UIView {
             adjustHeightFor(currentY: currentY)
         }
         
-        scrollView.contentSize = CGSize(
-            width: scrollView.contentSize.width,
+        scrollView?.contentSize = CGSize(
+            width: scrollView!.contentSize.width,
             height: currentY + Constants.defaultTokenHeight
         )
         
@@ -304,29 +304,29 @@ public class TokenField: UIView {
                 height: frame.height
             )
         )
-        scrollView.scrollsToTop = false
-        scrollView.contentSize = CGSize(
+        scrollView?.scrollsToTop = false
+        scrollView?.contentSize = CGSize(
             width: frame.width - horizontalInset * 2,
             height: frame.height - verticalInset * 2
         )
-        scrollView.contentInset = UIEdgeInsets(
+        scrollView?.contentInset = UIEdgeInsets(
             top: verticalInset,
             left: horizontalInset,
             bottom: verticalInset,
             right: horizontalInset
         )
-        scrollView.autoresizingMask = [
+        scrollView?.autoresizingMask = [
             UIViewAutoresizing.flexibleHeight,
             UIViewAutoresizing.flexibleWidth
         ]
-        addSubview(scrollView)
+        addSubview(scrollView!)
     }
     
     private func layoutInputTextViewWith(currentX: inout CGFloat, currentY: inout CGFloat, clearInput: Bool) {
         
-        var inputTextViewWidth = scrollView.contentSize.width - currentX
+        var inputTextViewWidth = scrollView?.contentSize.width ?? 0.0 - currentX
         if inputTextViewWidth < minInputWidth {
-            inputTextViewWidth = self.scrollView.contentSize.width
+            inputTextViewWidth = scrollView?.contentSize.width ?? 0.0
             currentY += Constants.defaultTokenHeight
             currentX = 0.0
         }
@@ -387,7 +387,7 @@ public class TokenField: UIView {
             token.colorScheme = dataSource?.tokenField(self, colorSchemedForTokenAtIndex: i) ?? colorScheme
             
             tokens.append(token)
-            if (currentX + token.frame.width <= self.scrollView.contentSize.width) { // token fits in current line
+            if (currentX + token.frame.width <= scrollView?.contentSize.width ?? 0) { // token fits in current line
                 token.frame = CGRect(
                     x: currentX,
                     y: currentY,
@@ -398,8 +398,8 @@ public class TokenField: UIView {
                 currentY += token.frame.height
                 currentX = 0;
                 var tokenWidth = token.frame.width
-                if (tokenWidth > scrollView.contentSize.width) { // token is wider than max width
-                    tokenWidth = scrollView.contentSize.width;
+                if (tokenWidth > scrollView?.contentSize.width ?? 0.0) { // token is wider than max width
+                    tokenWidth = scrollView?.contentSize.width ?? 0.0
                 }
                 token.frame = CGRect(
                     x: currentX,
@@ -408,8 +408,8 @@ public class TokenField: UIView {
                     height: token.frame.height
                 )
             }
-            currentX += token.frame.width + self.tokenPadding
-            self.scrollView.addSubview(token)
+            currentX += token.frame.width + tokenPadding
+            scrollView?.addSubview(token)
         }
     }
     
@@ -421,10 +421,10 @@ public class TokenField: UIView {
     
     private func layoutInvisibleTextView() {
         invisibleTextField = BackspaceTextView(frame: CGRect.zero)
-        invisibleTextField.autocorrectionType = autocorrectionType
-        invisibleTextField.autocapitalizationType = autocapitalizationType
-        invisibleTextField.backspaceDelegate = self
-        addSubview(invisibleTextField)
+        invisibleTextField?.autocorrectionType = autocorrectionType
+        invisibleTextField?.autocapitalizationType = autocapitalizationType
+        invisibleTextField?.backspaceDelegate = self
+        addSubview(invisibleTextField!)
     }
     
     private func didTap(token aToken: Token) {
