@@ -85,9 +85,9 @@ public class TokenField: UIView {
         toLabel.textColor = self.toLabelTextColor
         toLabel.font = UIFont(name: "HelveticaNeue", size: 15.0)
         toLabel.frame.origin.x = 0.0
+        toLabel.text = self.toLabelText
         toLabel.sizeToFit()
         toLabel.frame.size.height = Constants.defaultTokenHeight
-        toLabel.text = self.toLabelText
         return toLabel
     }()
     public lazy var inputTextView: BackspaceTextView = {
@@ -134,9 +134,7 @@ public class TokenField: UIView {
     }
     
     override public var isFirstResponder: Bool {
-        get {
-            return super.isFirstResponder
-        }
+        return super.isFirstResponder
     }
     
     override public func becomeFirstResponder() -> Bool {
@@ -199,7 +197,7 @@ public class TokenField: UIView {
         print("TokenField: Should set placeholder text")
     }
     
-    fileprivate func focusInputTextView() {
+    private func focusInputTextView() {
         let contentOffest = scrollView?.contentOffset ?? CGPoint.zero
         let targetY = inputTextView.frame.origin.y + Constants.defaultTokenHeight - maxHeight
         if targetY > contentOffest.y {
@@ -223,7 +221,6 @@ public class TokenField: UIView {
     private var collapsedLabel: UILabel?
     
     
-    
     private func setup() {
         originalHeight = frame.height
         
@@ -245,6 +242,33 @@ public class TokenField: UIView {
         
         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(TokenField.handleSingleTap(_:)))
         addGestureRecognizer(tapGestureRecognizer!)
+    }
+    
+    private func layoutScrollView() {
+        scrollView = UIScrollView(
+            frame: CGRect(
+                x: 0.0,
+                y: 0.0,
+                width: frame.width,
+                height: frame.height
+            )
+        )
+        scrollView?.scrollsToTop = false
+        scrollView?.contentSize = CGSize(
+            width: frame.width - horizontalInset * 2,
+            height: frame.height - verticalInset * 2
+        )
+        scrollView?.contentInset = UIEdgeInsets(
+            top: verticalInset,
+            left: horizontalInset,
+            bottom: verticalInset,
+            right: horizontalInset
+        )
+        scrollView?.autoresizingMask = [
+            UIViewAutoresizing.flexibleHeight,
+            UIViewAutoresizing.flexibleWidth
+        ]
+        addSubview(scrollView!)
     }
     
     private func layoutTokensAndInputWithFrameAdjustment(_ shouldAdjustFrame: Bool) {
@@ -283,53 +307,6 @@ public class TokenField: UIView {
         }
     }
     
-    private func layoutScrollView() {
-        scrollView = UIScrollView(
-            frame: CGRect(
-                x: 0.0,
-                y: 0.0,
-                width: frame.width,
-                height: frame.height
-            )
-        )
-        scrollView?.scrollsToTop = false
-        scrollView?.contentSize = CGSize(
-            width: frame.width - horizontalInset * 2,
-            height: frame.height - verticalInset * 2
-        )
-        scrollView?.contentInset = UIEdgeInsets(
-            top: verticalInset,
-            left: horizontalInset,
-            bottom: verticalInset,
-            right: horizontalInset
-        )
-        scrollView?.autoresizingMask = [
-            UIViewAutoresizing.flexibleHeight,
-            UIViewAutoresizing.flexibleWidth
-        ]
-        addSubview(scrollView!)
-    }
-    
-    private func layoutInputTextViewWith(currentX: inout CGFloat, currentY: inout CGFloat, clearInput: Bool) {
-        
-        var inputTextViewWidth = scrollView?.contentSize.width ?? 0.0 - currentX
-        if inputTextViewWidth < minInputWidth {
-            inputTextViewWidth = scrollView?.contentSize.width ?? 0.0
-            currentY += Constants.defaultTokenHeight
-            currentX = 0.0
-        }
-        
-        if clearInput {
-            inputTextView.text = ""
-        }
-        inputTextView.frame = CGRect(
-            x: currentX,
-            y: currentY + 1,
-            width: inputTextViewWidth,
-            height: Constants.defaultTokenHeight - 1
-        )
-    }
-    
     private func layoutCollapsedLabelWith(currentX: inout CGFloat) {
         let label = UILabel(
             frame: CGRect(
@@ -351,6 +328,8 @@ public class TokenField: UIView {
     private func layoutToLabelInView(_ view: UIView, origin: CGPoint, currentX: inout CGFloat) {
         toLabel.removeFromSuperview()
         
+        currentX = origin.x
+        
         var newFrame = toLabel.frame
         newFrame.origin = origin
         
@@ -360,7 +339,7 @@ public class TokenField: UIView {
         toLabel.frame = newFrame
         
         view.addSubview(toLabel)
-        let xIncrement = toLabel.isHidden ? toLabel.frame.minX : toLabel.frame.maxX + Constants.defaultTokenPadding
+        let xIncrement = toLabel.isHidden ? 0.0 : toLabel.frame.width + Constants.defaultTokenPadding
         currentX += xIncrement
     }
     
@@ -401,6 +380,28 @@ public class TokenField: UIView {
         }
     }
     
+    
+    private func layoutInputTextViewWith(currentX: inout CGFloat, currentY: inout CGFloat, clearInput: Bool) {
+        
+        var inputTextViewWidth = scrollView?.contentSize.width ?? 0.0 - currentX
+        if inputTextViewWidth < minInputWidth {
+            inputTextViewWidth = scrollView?.contentSize.width ?? 0.0
+            currentY += Constants.defaultTokenHeight
+            currentX = 0.0
+        }
+        
+        if clearInput {
+            inputTextView.text = ""
+        }
+        inputTextView.frame = CGRect(
+            x: currentX,
+            y: currentY + 1,
+            width: inputTextViewWidth,
+            height: Constants.defaultTokenHeight - 1
+        )
+        scrollView?.addSubview(inputTextView)
+    }
+    
     private func inputTextViewBecomeFirstResponder() {
         guard !inputTextView.isFirstResponder else { return }
         inputTextView.becomeFirstResponder()
@@ -439,7 +440,7 @@ public class TokenField: UIView {
                 newFrame.size.height = maxHeight
             }
         } else {
-            if currentY + Constants.defaultTokenHeight > originalHeight ?? 0.0 {
+            if currentY + Constants.defaultTokenHeight > originalHeight {
                 newFrame.size.height = currentY
                     + Constants.defaultTokenHeight
                     + Constants.defaultVerticalInset * 2
@@ -455,6 +456,7 @@ public class TokenField: UIView {
 }
 
 extension TokenField: BackspaceTextViewDelegate {
+    
     public func textViewDidEnterBackspace(_ textView: BackspaceTextView) {
         if let tokenCount = dataSource?.numberOfTokensInTokenField(self), tokenCount > 0 {
             var tokenDeleted = false

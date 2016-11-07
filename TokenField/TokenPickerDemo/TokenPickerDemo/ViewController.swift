@@ -22,7 +22,7 @@ class ViewController: UIViewController {
         tokenField = TokenField(
             frame: CGRect(
                 x: 0.0,
-                y: 0.0,
+                y: UIApplication.shared.statusBarFrame.height,
                 width: view.frame.size.width,
                 height: 50
             )
