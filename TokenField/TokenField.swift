@@ -287,7 +287,7 @@ public class TokenField: UIView {
         
         layoutToLabelInView(scrollView!, origin: CGPoint.zero, currentX: &currentX)
         layoutTokensWith(currentX: &currentX, currentY: &currentY)
-        layoutInputTextViewWith(currentX: &currentX, currentY: &currentY, clearInput: shouldAdjustFrame)
+        layoutInputTextViewWith(clearInput: shouldAdjustFrame)
         
         if shouldAdjustFrame {
             adjustHeightFor(currentY: currentY)
@@ -381,25 +381,29 @@ public class TokenField: UIView {
     }
     
     
-    private func layoutInputTextViewWith(currentX: inout CGFloat, currentY: inout CGFloat, clearInput: Bool) {
+    private func layoutInputTextViewWith(clearInput: Bool) {
         
-        var inputTextViewWidth = scrollView?.contentSize.width ?? 0.0 - currentX
-        if inputTextViewWidth < minInputWidth {
-            inputTextViewWidth = scrollView?.contentSize.width ?? 0.0
-            currentY += Constants.defaultTokenHeight
-            currentX = 0.0
+        inputTextView.frame = CGRect(
+            x: 0.0,
+            y: 0.0,
+            width: scrollView?.contentSize.width ?? 0.0,
+            height: scrollView?.contentSize.width ?? 0.0
+        )
+    
+        var exclusiontPaths: [UIBezierPath] = []
+        
+        exclusiontPaths.append(UIBezierPath(rect: toLabel.frame))
+        
+        for token in tokens {
+            exclusiontPaths.append(UIBezierPath(rect: token.frame))
         }
+        inputTextView.textContainer.exclusionPaths = exclusiontPaths
         
         if clearInput {
             inputTextView.text = ""
         }
-        inputTextView.frame = CGRect(
-            x: currentX,
-            y: currentY + 1,
-            width: inputTextViewWidth,
-            height: Constants.defaultTokenHeight - 1
-        )
         scrollView?.addSubview(inputTextView)
+        scrollView?.sendSubview(toBack: inputTextView)
     }
     
     private func inputTextViewBecomeFirstResponder() {
@@ -478,6 +482,10 @@ extension TokenField: BackspaceTextViewDelegate {
 }
 
 extension TokenField: UITextViewDelegate {
+    
+    public func textViewDidChange(_ textView: UITextView) {
+        delegate?.tokenField(self, didChangeText: textView.text ?? "")
+    }
     
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         unhighlightAllTokens()
