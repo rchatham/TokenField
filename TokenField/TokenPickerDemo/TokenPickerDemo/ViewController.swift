@@ -12,7 +12,14 @@ import TokenField
 
 class ViewController: UIViewController {
     
-    var tokenField: TokenField!
+    var tokens: [String] = []
+    
+    var tokenField: TokenField! {
+        didSet {
+            tokenField.delegate = self
+            tokenField.dataSource = self
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +34,6 @@ class ViewController: UIViewController {
                 height: 50
             )
         )
-        tokenField.sizeToFit()
         view.addSubview(tokenField)
     }
 
@@ -37,5 +43,54 @@ class ViewController: UIViewController {
     }
 
 
+}
+
+extension ViewController: TokenFieldDelegate {
+    
+    func tokenField(_ tokenField: TokenField, didChangeText text: String) {
+        
+    }
+    
+    func tokenField(_ tokenField: TokenField, didEnterText text: String) {
+        tokens.append(text)
+        tokenField.reloadData()
+    }
+
+    func tokenFieldDidBeginEditing(_ tokenField: TokenField) {
+        
+    }
+    
+    func tokenField(_ tokenField: TokenField, didDeleteTokenAtIndex index: Int) {
+        tokens.remove(at: index)
+        tokenField.reloadData()
+    }
+    
+    func tokenField(_ tokenField: TokenField, didChangeContentHeight height: CGFloat) {
+        if height < TokenField.Constants.defaultMaxHeight {
+            var frame = tokenField.frame
+            frame.size.height = height
+            tokenField.frame = frame
+        }
+    }
+}
+
+extension ViewController: TokenFieldDataSource {
+    
+    func numberOfTokensInTokenField(_ tokenField: TokenField) -> Int {
+        return tokens.count
+    }
+    
+    func tokenField(_ tokenField: TokenField, titleForTokenAtIndex index: Int) -> String {
+        return tokens[index]
+    }
+    
+    func tokenField(_ tokenField: TokenField, colorSchemedForTokenAtIndex index: Int) -> UIColor {
+        return UIColor.blue
+    }
+    
+    func tokenFieldCollapsedText(_ tokenField: TokenField) -> String {
+        return ""
+    }
+    
 }
 

@@ -118,7 +118,6 @@ public class TokenField: UIView {
         }
     }
     
-    
     override public init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -346,11 +345,11 @@ public class TokenField: UIView {
     private func layoutTokensWith(currentX: inout CGFloat, currentY: inout CGFloat) {
         for i in 0..<(dataSource?.numberOfTokensInTokenField(self) ?? 0) {
             let title = dataSource?.tokenField(self, titleForTokenAtIndex: i) ?? ""
-            let token = Token()
+            let token = Token(title: title)
+            token.sizeToFit()
             token.didTapTokenBlock = { [weak self] token in
                 self?.didTap(token: token)
             }
-            token.title = title
             token.colorScheme = dataSource?.tokenField(self, colorSchemedForTokenAtIndex: i) ?? colorScheme
             
             tokens.append(token)
@@ -363,7 +362,7 @@ public class TokenField: UIView {
                 )
             } else {
                 currentY += token.frame.height
-                currentX = 0;
+                currentX = 0
                 var tokenWidth = token.frame.width
                 if (tokenWidth > scrollView?.contentSize.width ?? 0.0) { // token is wider than max width
                     tokenWidth = scrollView?.contentSize.width ?? 0.0
@@ -491,7 +490,7 @@ extension TokenField: UITextViewDelegate {
         unhighlightAllTokens()
         
         guard text != "\n" else {
-            if textView.text.characters.count > 0 {
+            if !textView.text.isEmpty {
                 delegate?.tokenField(self, didEnterText: textView.text)
             }
             return false
