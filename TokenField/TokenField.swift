@@ -36,6 +36,7 @@ public class TokenField: UIView {
         public static let defaultMinInputWidth: CGFloat      = 80.0
         public static let defaultMaxHeight: CGFloat          = 150.0
         public static let defaultTokenHeight: CGFloat        = 30.0
+        public static let defaultVeritcalPadding: CGFloat    = 2.0
     }
     
     public var maxHeight: CGFloat = Constants.defaultMaxHeight
@@ -90,6 +91,7 @@ public class TokenField: UIView {
         toLabel.frame.size.height = Constants.defaultTokenHeight
         return toLabel
     }()
+    
     public lazy var inputTextView: BackspaceTextView = {
         let inputTextView = BackspaceTextView()
         inputTextView.keyboardType = self.inputTextViewKeyboardType
@@ -98,15 +100,17 @@ public class TokenField: UIView {
         inputTextView.autocorrectionType = self.autocorrectionType
         inputTextView.autocapitalizationType = self.autocapitalizationType
         inputTextView.tintColor = self.colorScheme
+        inputTextView.isScrollEnabled = false
+        inputTextView.textContainer.lineBreakMode = .byWordWrapping
         inputTextView.delegate = self
         inputTextView.backspaceDelegate = self
+        inputTextView.layoutManager.delegate = self
         // TODO: - Add placeholder to BackspaceTextView and set it here
         inputTextView.accessibilityLabel = self.accessibilityLabel ?? NSLocalizedString("To", comment: "")
         inputTextView.inputAccessoryView = self.inputTextViewAccessoryView
         return inputTextView
     }()
     
-    public var delimiters: [String] = [] // Are these strings??????
     public var placeholderText: String! {
         didSet {
             print("Placeholder not implemented")
@@ -163,7 +167,7 @@ public class TokenField: UIView {
     
     override public func layoutSubviews() {
         super.layoutSubviews()
-        scrollView?.contentSize = CGSize(
+        scrollView.contentSize = CGSize(
             width: frame.width - Constants.defaultHorizontalInset * 2,
             height: frame.height - Constants.defaultVerticalInset * 2
         )
@@ -197,10 +201,15 @@ public class TokenField: UIView {
     }
     
     private func focusInputTextView() {
-        let contentOffest = scrollView?.contentOffset ?? CGPoint.zero
+        let contentOffest = scrollView.contentOffset
         let targetY = inputTextView.frame.origin.y + Constants.defaultTokenHeight - maxHeight
         if targetY > contentOffest.y {
-            scrollView?.setContentOffset(CGPoint(x: contentOffest.x, y: targetY), animated: false)
+            scrollView.setContentOffset(
+                CGPoint(
+                    x: contentOffest.x,
+                    y: targetY),
+                animated: false
+            )
         }
     }
     
@@ -213,7 +222,32 @@ public class TokenField: UIView {
     
     // MARK: - Private
     
-    private var scrollView: UIScrollView?
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView(
+            frame: CGRect(
+                x: 0.0,
+                y: 0.0,
+                width: self.frame.width,
+                height: self.frame.height
+            )
+        )
+        scrollView.scrollsToTop = false
+        scrollView.contentSize = CGSize(
+            width: self.frame.width - self.horizontalInset * 2,
+            height: self.frame.height - self.verticalInset * 2
+        )
+        scrollView.contentInset = UIEdgeInsets(
+            top: self.verticalInset,
+            left: self.horizontalInset,
+            bottom: self.verticalInset,
+            right: self.horizontalInset
+        )
+        scrollView.autoresizingMask = [
+            UIViewAutoresizing.flexibleHeight,
+            UIViewAutoresizing.flexibleWidth
+        ]
+        return scrollView
+    }()
     private var originalHeight: CGFloat = 0.0
     private var tapGestureRecognizer: UITapGestureRecognizer?
     private var invisibleTextField: BackspaceTextView?
@@ -230,7 +264,7 @@ public class TokenField: UIView {
     
     private func layoutCollapsedLabel() {
         collapsedLabel?.removeFromSuperview()
-        scrollView?.isHidden = true
+        scrollView.isHidden = true
         var frame = self.frame
         frame.size.height = originalHeight
         self.frame = frame
@@ -244,37 +278,14 @@ public class TokenField: UIView {
     }
     
     private func layoutScrollView() {
-        scrollView = UIScrollView(
-            frame: CGRect(
-                x: 0.0,
-                y: 0.0,
-                width: frame.width,
-                height: frame.height
-            )
-        )
-        scrollView?.scrollsToTop = false
-        scrollView?.contentSize = CGSize(
-            width: frame.width - horizontalInset * 2,
-            height: frame.height - verticalInset * 2
-        )
-        scrollView?.contentInset = UIEdgeInsets(
-            top: verticalInset,
-            left: horizontalInset,
-            bottom: verticalInset,
-            right: horizontalInset
-        )
-        scrollView?.autoresizingMask = [
-            UIViewAutoresizing.flexibleHeight,
-            UIViewAutoresizing.flexibleWidth
-        ]
-        addSubview(scrollView!)
+        addSubview(scrollView)
     }
     
     private func layoutTokensAndInputWithFrameAdjustment(_ shouldAdjustFrame: Bool) {
         collapsedLabel?.removeFromSuperview()
         let inputViewShouldBecomeFirstResponder = inputTextView.isFirstResponder
-        scrollView?.subviews.forEach { $0.removeFromSuperview() }
-        scrollView?.isHidden = false
+        scrollView.subviews.forEach { $0.removeFromSuperview() }
+        scrollView.isHidden = false
         if tapGestureRecognizer != nil {
             removeGestureRecognizer(tapGestureRecognizer!)
         }
@@ -284,16 +295,16 @@ public class TokenField: UIView {
         var currentX: CGFloat = 0.0
         var currentY: CGFloat = 0.0
         
-        layoutToLabelInView(scrollView!, origin: CGPoint.zero, currentX: &currentX)
+        layoutToLabelInView(scrollView, origin: CGPoint.zero, currentX: &currentX)
         layoutTokensWith(currentX: &currentX, currentY: &currentY)
-        layoutInputTextViewWith(clearInput: shouldAdjustFrame)
+        layoutInputTextViewWith(currentX: &currentX, currentY: &currentY, clearInput: shouldAdjustFrame)
         
         if shouldAdjustFrame {
             adjustHeightFor(currentY: currentY)
         }
         
-        scrollView?.contentSize = CGSize(
-            width: scrollView!.contentSize.width,
+        scrollView.contentSize = CGSize(
+            width: scrollView.contentSize.width,
             height: currentY + Constants.defaultTokenHeight
         )
         
@@ -353,7 +364,7 @@ public class TokenField: UIView {
             token.colorScheme = dataSource?.tokenField(self, colorSchemedForTokenAtIndex: i) ?? colorScheme
             
             tokens.append(token)
-            if (currentX + token.frame.width <= scrollView?.contentSize.width ?? 0) { // token fits in current line
+            if currentX + token.frame.width <= scrollView.contentSize.width { // token fits in current line
                 token.frame = CGRect(
                     x: currentX,
                     y: currentY,
@@ -361,11 +372,11 @@ public class TokenField: UIView {
                     height: token.frame.height
                 )
             } else {
-                currentY += token.frame.height
+                currentY += token.frame.height + Constants.defaultVeritcalPadding
                 currentX = 0
                 var tokenWidth = token.frame.width
-                if (tokenWidth > scrollView?.contentSize.width ?? 0.0) { // token is wider than max width
-                    tokenWidth = scrollView?.contentSize.width ?? 0.0
+                if (tokenWidth > scrollView.contentSize.width) { // token is wider than max width
+                    tokenWidth = scrollView.contentSize.width
                 }
                 token.frame = CGRect(
                     x: currentX,
@@ -375,34 +386,49 @@ public class TokenField: UIView {
                 )
             }
             currentX += token.frame.width + tokenPadding
-            scrollView?.addSubview(token)
+            scrollView.addSubview(token)
         }
     }
     
-    
-    private func layoutInputTextViewWith(clearInput: Bool) {
+    private func layoutInputTextViewWith(currentX: inout CGFloat, currentY: inout CGFloat, clearInput: Bool) {
+        
+        //let inputHeight = inputTextView.intrinsicContentSize.height > Constants.defaultTokenHeight
+        //  ? inputTextView.intrinsicContentSize.height
+        //  : Constants.defaultTokenHeight
+        
+        if currentX + Constants.defaultMinInputWidth >= scrollView.contentSize.width {
+            currentY += Constants.defaultTokenHeight + Constants.defaultVeritcalPadding
+        }
         
         inputTextView.frame = CGRect(
             x: 0.0,
-            y: 0.0,
-            width: scrollView?.contentSize.width ?? 0.0,
-            height: scrollView?.contentSize.width ?? 0.0
+            y: currentY,
+            width: scrollView.contentSize.width,
+            height: scrollView.contentSize.height
         )
     
-        var exclusiontPaths: [UIBezierPath] = []
+        var exclusionPaths: [UIBezierPath] = []
         
-        exclusiontPaths.append(UIBezierPath(rect: toLabel.frame))
+        if inputTextView.frame.origin.y == toLabel.frame.origin.y {
+            exclusionPaths.append(UIBezierPath(rect: toLabel.frame))
+        }
         
         for token in tokens {
-            exclusiontPaths.append(UIBezierPath(rect: token.frame))
+            if inputTextView.frame.origin.y == token.frame.origin.y {
+                
+                var frame = token.frame
+                frame.origin.y = 0.0
+                
+                exclusionPaths.append(UIBezierPath(rect: frame))
+            }
         }
-        inputTextView.textContainer.exclusionPaths = exclusiontPaths
+        inputTextView.textContainer.exclusionPaths = exclusionPaths
         
         if clearInput {
             inputTextView.text = ""
         }
-        scrollView?.addSubview(inputTextView)
-        scrollView?.sendSubview(toBack: inputTextView)
+        scrollView.addSubview(inputTextView)
+        scrollView.sendSubview(toBack: inputTextView)
     }
     
     private func inputTextViewBecomeFirstResponder() {
@@ -483,32 +509,19 @@ extension TokenField: BackspaceTextViewDelegate {
 extension TokenField: UITextViewDelegate {
     
     public func textViewDidChange(_ textView: UITextView) {
+        //unhighlightAllTokens()
         delegate?.tokenField(self, didChangeText: textView.text ?? "")
     }
     
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        unhighlightAllTokens()
+        
+        //unhighlightAllTokens()
         
         guard text != "\n" else {
             if !textView.text.isEmpty {
                 delegate?.tokenField(self, didEnterText: textView.text)
             }
             return false
-        }
-        
-        let newString = (textView.text as NSString).replacingCharacters(in: range, with: text) as String
-        
-        for delimiter in delimiters {
-            let offset = newString.characters.count - delimiter.characters.count
-            let index = newString.index(newString.startIndex, offsetBy: offset)
-            //index(newString.endIndex, offsetBy: delimiter.characters.count)
-            if (newString.characters.count > delimiter.characters.count) && (newString.substring(from: index) == delimiter) {
-                let enteredText = newString.substring(to: index)
-                if !enteredText.isEmpty {
-                    delegate?.tokenField(self, didEnterText: enteredText)
-                    return false
-                }
-            }
         }
         return true
     }
@@ -517,5 +530,13 @@ extension TokenField: UITextViewDelegate {
         if textView === inputTextView {
             unhighlightAllTokens()
         }
+    }
+}
+
+extension TokenField: NSLayoutManagerDelegate {
+
+    public func layoutManager(_ layoutManager: NSLayoutManager, lineSpacingAfterGlyphAt glyphIndex: Int, withProposedLineFragmentRect rect: CGRect) -> CGFloat {
+
+        return Constants.defaultTokenHeight - 10
     }
 }
