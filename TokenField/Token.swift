@@ -8,12 +8,18 @@
 
 import UIKit
 
+public protocol TokenDelegate: class {
+    func didTapToken(_ token: Token)
+}
+
 public class Token: UIView {
+    
+    public weak var delegate: TokenDelegate?
 
     public let title: String
     public var colorScheme: UIColor = UIColor.blue { didSet { updateUI() } }
     internal var highlighted: Bool = false { didSet { updateUI() } }
-    internal var didTapTokenBlock: (Token)->Void = { _ in }
+    // internal var didTapTokenBlock: (Token)->Void = { _ in }
     
     public init(title: String) {
         self.title = title
@@ -36,7 +42,8 @@ public class Token: UIView {
     }
     
     internal func didTapToken(_ sender: UITapGestureRecognizer) {
-        didTapTokenBlock(self)
+        // didTapTokenBlock(self)
+        delegate?.didTapToken(self)
     }
     
     // MARK: - IBOutlet
@@ -45,7 +52,7 @@ public class Token: UIView {
     @IBOutlet weak var titleLabel: UILabel! {
         didSet {
             titleLabel.text = title
-            titleLabel.textColor = colorScheme
+            titleLabel.textColor = UIColor.white
             titleLabel.font = UIFont(name: "HelveticaNeue", size: 15.5)
         }
     }
@@ -55,8 +62,9 @@ public class Token: UIView {
     private var tapGestureRecognizer: UITapGestureRecognizer!
     
     private func loadView() {
-        let bundle = Bundle(for: type(of: self))
-        let nib = UINib(nibName: String(describing: type(of: self)), bundle: bundle)
+        let type = type(of: self)
+        let bundle = Bundle(for: type)
+        let nib = UINib(nibName: String(describing: type), bundle: bundle)
         let view = nib.instantiate(withOwner: self, options: nil).first! as! UIView
         view.frame = bounds
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -67,14 +75,11 @@ public class Token: UIView {
         backgroundView.layer.cornerRadius = 5
         tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(Token.didTapToken(_:)))
         colorScheme = UIColor.blue
-        titleLabel.textColor = colorScheme
         addGestureRecognizer(tapGestureRecognizer)
     }
     
     private func updateUI() {
-        let textColor = highlighted ? UIColor.white : colorScheme
-        let backgroundColor = highlighted ? colorScheme : UIColor.clear
-        titleLabel.textColor = textColor
+        let backgroundColor = highlighted ? colorScheme : colorScheme.withAlphaComponent(0.6)
         backgroundView.backgroundColor = backgroundColor
     }
     
