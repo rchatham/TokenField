@@ -29,12 +29,12 @@ public class TokenField: UIView {
     public weak var dataSource: TokenFieldDataSource?
     
     public struct Constants {
+        public static let defaultMaxHeight: CGFloat          = 150.0
         public static let defaultVerticalInset: CGFloat      = 7.0
         public static let defaultHorizontalInset: CGFloat    = 15.0
-        public static let defaultToLabelPadding: CGFloat     = 5.0
         public static let defaultTokenPadding: CGFloat       = 2.0
         public static let defaultMinInputWidth: CGFloat      = 80.0
-        public static let defaultMaxHeight: CGFloat          = 150.0
+        public static let defaultToLabelPadding: CGFloat     = 5.0
         public static let defaultTokenHeight: CGFloat        = 30.0
         public static let defaultVeritcalPadding: CGFloat    = 2.0
     }
@@ -121,6 +121,12 @@ public class TokenField: UIView {
         }
     }
     
+    override public var isFirstResponder: Bool {
+        return super.isFirstResponder
+    }
+    
+    // MARK: - initializers
+    
     override public init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -133,10 +139,6 @@ public class TokenField: UIView {
     override public func awakeFromNib() {
         super.awakeFromNib()
         setup()
-    }
-    
-    override public var isFirstResponder: Bool {
-        return super.isFirstResponder
     }
     
     override public func becomeFirstResponder() -> Bool {
@@ -190,8 +192,10 @@ public class TokenField: UIView {
         let inputViewShouldBecomeFirstResponder = inputTextView.isFirstResponder
         scrollView.subviews.forEach { $0.removeFromSuperview() }
         scrollView.isHidden = false
+        
         if tapGestureRecognizer != nil {
             removeGestureRecognizer(tapGestureRecognizer!)
+            tapGestureRecognizer = nil
         }
         
         tokens = []
@@ -211,6 +215,8 @@ public class TokenField: UIView {
             width: scrollView.contentSize.width,
             height: currentY + inputTextView.frame.height
         )
+        
+        scrollView.isScrollEnabled = scrollView.contentSize.height > maxHeight
         
         updateInputTextField()
         
@@ -236,13 +242,11 @@ public class TokenField: UIView {
     }
     
     private func focusInputTextView() {
-        let contentOffest = scrollView.contentOffset
+        let contentOffset = scrollView.contentOffset
         let targetY = inputTextView.frame.origin.y + Constants.defaultTokenHeight - maxHeight
-        if targetY > contentOffest.y {
+        if targetY > contentOffset.y {
             scrollView.setContentOffset(
-                CGPoint(
-                    x: contentOffest.x,
-                    y: targetY),
+                CGPoint(x: contentOffset.x, y: targetY),
                 animated: false
             )
         }
