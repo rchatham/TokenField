@@ -150,7 +150,7 @@ public class TokenField: UIView {
     }()
     
     /// Input textView. Lazily instantited.
-    public lazy var inputTextView: BackspaceTextView = {
+    public lazy var inputTextView: UITextView = {
         let inputTextView = BackspaceTextView()
         inputTextView.keyboardType = self.inputTextViewKeyboardType
         inputTextView.textColor = self.inputTextViewTextColor
@@ -545,9 +545,11 @@ public class TokenField: UIView {
     }
 }
 
+/// :nodoc:
 extension TokenField: BackspaceTextViewDelegate {
     
-    public func textViewDidEnterBackspace(_ textView: BackspaceTextView) {
+    /// :nodoc:
+    internal func textViewDidEnterBackspace(_ textView: BackspaceTextView) {
         if let tokenCount = dataSource?.numberOfTokensInTokenField(self), tokenCount > 0 {
             var tokenDeleted = false
             for token in tokens {
@@ -567,8 +569,9 @@ extension TokenField: BackspaceTextViewDelegate {
     }
 }
 
+/// :nodoc:
 extension TokenField: TokenDelegate {
-    
+    /// :nodoc:
     public func didTapToken(_ token: Token) {
         
         for aToken in tokens {
@@ -582,8 +585,10 @@ extension TokenField: TokenDelegate {
     }
 }
 
+/// :nodoc:
 extension TokenField: UITextViewDelegate {
     
+    /// :nodoc:
     public func textViewDidChange(_ textView: UITextView) {
         //unhighlightAllTokens()
         delegate?.tokenField(self, didChangeText: textView.text ?? "")
@@ -593,6 +598,7 @@ extension TokenField: UITextViewDelegate {
         }
     }
     
+    /// :nodoc:
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
         //unhighlightAllTokens()
@@ -606,6 +612,7 @@ extension TokenField: UITextViewDelegate {
         return true
     }
     
+    /// :nodoc:
     public func textViewDidBeginEditing(_ textView: UITextView) {
         if textView === inputTextView {
             unhighlightAllTokens()
