@@ -131,11 +131,6 @@ public class TokenField: UIView {
             inputTextView.accessibilityLabel = inputTextViewAccessibilityLabel
         }
     }
-//    public var placeholderText: String! {
-//        didSet {
-//            print("Placeholder not implemented")
-//        }
-//    }
     
     /// To label. Lazily instantiated.
     public lazy var toLabel: UILabel = {
@@ -280,8 +275,6 @@ public class TokenField: UIView {
         
         scrollView.isScrollEnabled = scrollView.contentSize.height > maxHeight
         
-        updateInputTextField()
-        
         if inputViewShouldBecomeFirstResponder {
             inputTextViewBecomeFirstResponder()
         } else {
@@ -297,10 +290,6 @@ public class TokenField: UIView {
         } else {
             invisibleTextField.becomeFirstResponder()
         }
-    }
-    
-    fileprivate func updateInputTextField() {
-        print("TokenField: Should set placeholder text")
     }
     
     private func focusInputTextView() {
