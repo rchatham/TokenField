@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "TokenField"
-  spec.version      = "0.1.0"
+  spec.version      = "0.1.1"
   spec.platform     = :ios, "8.0"
   spec.license      = { :type => "MIT" }
   spec.homepage     = "https://github.com/rchatham/TokenField"
