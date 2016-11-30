@@ -8,69 +8,114 @@
 
 import UIKit
 
+/// Delegate protocol for the TokenField. Conform to this if you want to respond to actions from the TokenField.
 public protocol TokenFieldDelegate: class {
+    /// Called when the user returns for a given input.
     func tokenField(_ tokenField: TokenField, didEnterText text: String)
+    /// Called when the user tries to delete a token at the given index.
     func tokenField(_ tokenField: TokenField, didDeleteTokenAtIndex index: Int)
+    /// Called when the user changes the text in the textField.
     func tokenField(_ tokenField: TokenField, didChangeText text: String)
+    /// Called when the TokenField did begin editing.
     func tokenFieldDidBeginEditing(_ tokenField: TokenField)
+    /// Called when the TokenField's content height changes.
     func tokenField(_ tokenField: TokenField, didChangeContentHeight height: CGFloat)
 }
 
+/// DataSource protocol for the TokenField. Conform to this to provide the token data for the TokenField.
 public protocol TokenFieldDataSource: class {
+    /// The title for the Token object at a given index.
     func tokenField(_ tokenField: TokenField, titleForTokenAtIndex index: Int) -> String
+    /// The color scheme for the Token object at a given index.
     func tokenField(_ tokenField: TokenField, colorSchemedForTokenAtIndex index: Int) -> UIColor
+    /// The number of Token objects in the TokenField.
     func numberOfTokensInTokenField(_ tokenField: TokenField) -> Int
+    /// The text to display in the TokenField when the field is inactive.
     func tokenFieldCollapsedText(_ tokenField: TokenField) -> String
 }
 
+/// TokenField subclass of UIView to display tokens and text as in the messages and mail app.
 public class TokenField: UIView {
 
+    /// The TokenField's delegate.
     public weak var delegate: TokenFieldDelegate?
+    /// The TokenField's data source.
     public weak var dataSource: TokenFieldDataSource?
     
+    /// Struct of static default values for the TokenField.
     public struct Constants {
+        /// Default maximum height = 150.0
         public static let defaultMaxHeight: CGFloat          = 150.0
+        /// Default vertical inset = 7.0
         public static let defaultVerticalInset: CGFloat      = 7.0
+        /// Default horizontal inset = 15.0
         public static let defaultHorizontalInset: CGFloat    = 15.0
+        /// Default token padding = 2.0
         public static let defaultTokenPadding: CGFloat       = 2.0
+        /// Default minimum input width = 80.0
         public static let defaultMinInputWidth: CGFloat      = 80.0
+        /// Default to label paddig = 5.0
         public static let defaultToLabelPadding: CGFloat     = 5.0
+        /// Default token height = 30.0
         public static let defaultTokenHeight: CGFloat        = 30.0
+        /// Default vertical padding = 2.0
         public static let defaultVeritcalPadding: CGFloat    = 2.0
     }
     
+    /// TokenField's maximum height value.
     public var maxHeight: CGFloat = Constants.defaultMaxHeight
+    /// TokenField's vertical inset.
     public var verticalInset: CGFloat = Constants.defaultVerticalInset
+    /// TokenField's horizontal inset.
     public var horizontalInset: CGFloat = Constants.defaultHorizontalInset
+    /// TokenField's token padding.
     public var tokenPadding: CGFloat = Constants.defaultTokenPadding
+    /// TokenField's minimum input text width.
     public var minInputWidth: CGFloat = Constants.defaultMinInputWidth
     
+    /// Keyboard type inital value .default.
     public var inputTextViewKeyboardType: UIKeyboardType = .default
+    /// Keyboard appearance initial value .default.
     public var keyboardAppearance: UIKeyboardAppearance = .default
     
-    public var autocorrectionType: UITextAutocorrectionType = .no
-    public var autocapitalizationType: UITextAutocapitalizationType = .sentences
+    /// Autocorrection type for textView initial value .no
+    public var autocorrectionType: UITextAutocorrectionType = .no {
+        didSet {
+            inputTextView.autocorrectionType = autocorrectionType
+        }
+    }
+    /// Autocapitalization type for textView inital value .sentences
+    public var autocapitalizationType: UITextAutocapitalizationType = .sentences {
+        didSet {
+            inputTextView.autocapitalizationType = autocapitalizationType
+        }
+    }
+    /// Input accessory view for textView.
     public var inputTextViewAccessoryView: UIView? {
         didSet {
             inputTextView.inputAccessoryView = inputTextViewAccessoryView
         }
     }
+    /// To label text color.
     public var toLabelTextColor: UIColor = UIColor(red: 112/255.0, green: 124/255.0, blue: 124/255.0, alpha: 1.0) {
         didSet {
             toLabel.textColor = toLabelTextColor
         }
     }
+    /// To label text.
     public var toLabelText: String = NSLocalizedString("To:", comment: "") {
         didSet {
             toLabel.text = toLabelText
             reloadData()
         }
     }
+    /// Input textView text color.
     public var inputTextViewTextColor: UIColor = UIColor(red: 38/255.0, green: 39/255.0, blue: 41/255.0, alpha: 1.0) {
         didSet {
             inputTextView.textColor = inputTextViewTextColor
         }
     }
+    /// TokenField color scheme, initial value = .blue
     public var colorScheme: UIColor = .blue {
         didSet {
             collapsedLabel?.textColor = colorScheme
@@ -80,7 +125,19 @@ public class TokenField: UIView {
             }
         }
     }
+    /// Input textView accessibility label.
+    public var inputTextViewAccessibilityLabel: String! {
+        didSet {
+            inputTextView.accessibilityLabel = inputTextViewAccessibilityLabel
+        }
+    }
+//    public var placeholderText: String! {
+//        didSet {
+//            print("Placeholder not implemented")
+//        }
+//    }
     
+    /// To label. Lazily instantiated.
     public lazy var toLabel: UILabel = {
         let toLabel = UILabel(frame: CGRect.zero)
         toLabel.textColor = self.toLabelTextColor
@@ -92,6 +149,7 @@ public class TokenField: UIView {
         return toLabel
     }()
     
+    /// Input textView. Lazily instantited.
     public lazy var inputTextView: BackspaceTextView = {
         let inputTextView = BackspaceTextView()
         inputTextView.keyboardType = self.inputTextViewKeyboardType
@@ -107,65 +165,67 @@ public class TokenField: UIView {
         // TODO: - Add placeholder to BackspaceTextView and set it here
         inputTextView.accessibilityLabel = self.accessibilityLabel ?? NSLocalizedString("To", comment: "")
         inputTextView.inputAccessoryView = self.inputTextViewAccessoryView
+        inputTextView.accessibilityLabel = self.inputTextViewAccessibilityLabel
         return inputTextView
     }()
     
-    public var placeholderText: String! {
-        didSet {
-            print("Placeholder not implemented")
-        }
-    }
-    public var inputTextFieldAccessibilityLabel: String! {
-        didSet {
-            inputTextView.accessibilityLabel = inputTextFieldAccessibilityLabel
-        }
-    }
-    
+    /// - Returns: `Bool` value which is true if the TokenField view is the first responder.
     override public var isFirstResponder: Bool {
         return super.isFirstResponder
     }
     
     // MARK: - initializers
     
+    /// Initializes a TokenField with a `CGRect` frame within it's superview.
     override public init(frame: CGRect) {
         super.init(frame: frame)
         setup()
     }
     
+    /// Initializer used by the storyboard to initialize a TokenField.
     required public init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: aDecoder)
+        setup()
     }
     
+    /// TokenField override of UIView's awakeFromNib() function. Calls super.awakeFromNib() and then self.setup().
     override public func awakeFromNib() {
         super.awakeFromNib()
         setup()
     }
     
+    /// TokenField calls self.layoutTokensAndInputWithFrameAdjustment(true) and self.inputTextViewBecomeFirstResponder()
+    /// - Returns: Always returns `true`
     override public func becomeFirstResponder() -> Bool {
         layoutTokensAndInputWithFrameAdjustment(true)
         inputTextViewBecomeFirstResponder()
         return true
     }
     
+    /// Resigns first responder.
     override public func resignFirstResponder() -> Bool {
         super.resignFirstResponder()
         return inputTextView.resignFirstResponder()
     }
     
+    /// Collapses the TokenField.
     public func collapse() {
         layoutCollapsedLabel()
     }
     
+    /// Reload's the TokenField's data and lays out it's views.
     public func reloadData() {
         layoutTokensAndInputWithFrameAdjustment(true)
     }
     
-    public func inputText() -> String {
+    /// - Returns: the input text from the textView.
+    public var inputText: String {
         return inputTextView.text ?? ""
     }
     
     // MARK: - View layout
     
+    /// Lays out the TokenField's subviews.
     override public func layoutSubviews() {
         super.layoutSubviews()
         scrollView.contentSize = CGSize(
@@ -178,6 +238,8 @@ public class TokenField: UIView {
             layoutTokensAndInputWithFrameAdjustment(false)
         }
     }
+    
+    // MARK: - Internal
     
     internal func handleSingleTap(_ sender: UITapGestureRecognizer) {
         _ = becomeFirstResponder()
