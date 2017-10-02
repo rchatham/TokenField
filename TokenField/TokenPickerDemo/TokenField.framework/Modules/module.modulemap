@@ -1,0 +1,11 @@
+framework module TokenField {
+  umbrella header "TokenField.h"
+
+  export *
+  module * { export * }
+}
+
+module TokenField.Swift {
+    header "TokenField-Swift.h"
+    requires objc
+}

@@ -12,8 +12,6 @@
 		30900D5D1DCEBB52008C606A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 30900D5B1DCEBB52008C606A /* Main.storyboard */; };
 		30900D5F1DCEBB52008C606A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30900D5E1DCEBB52008C606A /* Assets.xcassets */; };
 		30900D621DCEBB52008C606A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 30900D601DCEBB52008C606A /* LaunchScreen.storyboard */; };
-		30900D701DCEBD69008C606A /* TokenField.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30900D6F1DCEBD69008C606A /* TokenField.framework */; };
-		30900D711DCEBD69008C606A /* TokenField.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 30900D6F1DCEBD69008C606A /* TokenField.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,7 +21,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				30900D711DCEBD69008C606A /* TokenField.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -38,7 +35,7 @@
 		30900D5E1DCEBB52008C606A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		30900D611DCEBB52008C606A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		30900D631DCEBB52008C606A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		30900D6F1DCEBD69008C606A /* TokenField.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TokenField.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		30C7CF7A1F81D89600492767 /* TokenField.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = TokenField.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,7 +43,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				30900D701DCEBD69008C606A /* TokenField.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,7 +52,7 @@
 		30900D4B1DCEBB52008C606A = {
 			isa = PBXGroup;
 			children = (
-				30900D6F1DCEBD69008C606A /* TokenField.framework */,
+				30C7CF7A1F81D89600492767 /* TokenField.framework */,
 				30900D561DCEBB52008C606A /* TokenPickerDemo */,
 				30900D551DCEBB52008C606A /* Products */,
 			);
@@ -111,7 +107,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0810;
-				LastUpgradeCheck = 0810;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Reid Chatham";
 				TargetAttributes = {
 					30900D531DCEBB52008C606A = {
@@ -193,7 +189,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -201,7 +199,12 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -243,7 +246,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -251,7 +256,12 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;

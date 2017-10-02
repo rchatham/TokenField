@@ -25,7 +25,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        
+
         tokenField = TokenField(
             frame: CGRect(
                 x: 0.0,

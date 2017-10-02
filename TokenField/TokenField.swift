@@ -43,7 +43,7 @@ public class TokenField: UIView {
     public weak var dataSource: TokenFieldDataSource?
     
     /// Struct of static default values for the TokenField.
-    public struct Constants {
+    public enum Constants {
         /// Default maximum height = 150.0
         public static let defaultMaxHeight: CGFloat          = 150.0
         /// Default vertical inset = 7.0
@@ -236,7 +236,7 @@ public class TokenField: UIView {
     
     // MARK: - Internal
     
-    internal func handleSingleTap(_ sender: UITapGestureRecognizer) {
+    @objc internal func handleSingleTap(_ sender: UITapGestureRecognizer) {
         _ = becomeFirstResponder()
     }
     
