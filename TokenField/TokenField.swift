@@ -236,7 +236,7 @@ public class TokenField: UIView {
     
     // MARK: - Internal
     
-    internal func handleSingleTap(_ sender: UITapGestureRecognizer) {
+    @objc internal func handleSingleTap(_ sender: UITapGestureRecognizer) {
         _ = becomeFirstResponder()
     }
     
@@ -333,8 +333,8 @@ public class TokenField: UIView {
             right: self.horizontalInset
         )
         scrollView.autoresizingMask = [
-            UIViewAutoresizing.flexibleHeight,
-            UIViewAutoresizing.flexibleWidth
+            UIView.AutoresizingMask.flexibleHeight,
+            UIView.AutoresizingMask.flexibleWidth
         ]
         return scrollView
     }()
@@ -486,7 +486,7 @@ public class TokenField: UIView {
             inputTextView.text = ""
         }
         scrollView.addSubview(inputTextView)
-        scrollView.sendSubview(toBack: inputTextView)
+        scrollView.sendSubviewToBack(inputTextView)
     }
     
     private func inputTextViewBecomeFirstResponder() {

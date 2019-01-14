@@ -20,9 +20,14 @@ internal class BackspaceTextView: UITextView {
     internal weak var backspaceDelegate: BackspaceTextViewDelegate?
     
     internal func keyboardInputShouldDelete(_ textView: UITextView) -> Bool {
-        if text.characters.count == 0 {
+        if text.count == 0 {
             backspaceDelegate?.textViewDidEnterBackspace(self)
         }
         return true
+    }
+
+    override func deleteBackward() {
+        super.deleteBackward()
+        backspaceDelegate?.textViewDidEnterBackspace(self)
     }
 }
